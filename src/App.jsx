@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
 
 import './App.css'
-import { addUser, getUser, updateUser } from './APIHandler';
+import { addUser, deleteUser, getUser, updateUser } from './APIHandler';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import UserPopup from './UserPopup';
 
 
 
 function App() {
   const [users, setUsers] = useState([])
   const [form, setForm] = useState({
-    id:null,
     name: "",
     age: 1,
-    jobtitle: ""
+    job_title: ""
   })
 
   const handleChange = (e) => {
@@ -36,7 +36,7 @@ function App() {
     e.preventDefault()
     console.log(form)
     async function submitData() {
-      const addUserData = await addUser(form.name, form.age, form.jobtitle)
+      const addUserData = await addUser(form.name, form.age, form.job_title)
       console.log(addUserData)
       fetchData()
     }
@@ -44,18 +44,41 @@ function App() {
 
   }
 
-  function update(e) {
+  function submitUpdatedUser(e, id, name, age, job_title) {
     e.preventDefault()
-    console.log(form)
     async function submitData() {
-      const updateUserData = await updateUser(form.id,form.name, form.age, form.jobtitle)
+      const updateUserData = await updateUser(id, name, age, job_title)
       console.log(updateUserData)
       fetchData()
     }
     submitData()
+    console.log("sent")
+  }
+
+
+
+  function updateUserState(id, name, age, job_title) {
+    for (let i = 0; i < users.length; i++) {
+      if (id === users[i].id) {
+        users[i].name = name
+        users[i].age = age
+        users[i].job_title = job_title
+      }
+    }
+    setUsers([...users])
 
   }
 
+
+  function submitDeleteUser(id) {
+    for (let i = 0; i < users.length; i++) {
+      if (id === users[i].id) {
+        console.log("Deleted user with ID "+id)
+        deleteUser(id)
+      }
+
+    }
+  }
 
   return (
     <>
@@ -78,19 +101,25 @@ function App() {
               <td>{user.name}</td>
               <td>{user.age}</td>
               <td>{user.job_title}</td>
-              <td> <Popup trigger={<button>Update</button>} position="right center">
-                <form className='popUp'>
-                  <h3>Update User</h3>
-                  <label>Name</label>
-                  <input type='text' name='name' value={form.name} onChange={handleChange} />
-                  <label>Age</label>
-                  <input type='number' name='age' value={form.age} onChange={handleChange} />
-                  <label>Job Title</label>
-                  <input type='text' name='jobtitle' value={form.jobtitle} onChange={handleChange} />
-                  <button onClick={update}>Update</button>
-                </form>
-              </Popup></td>
-              <td><button>Delete</button></td>
+              <td> <UserPopup label="update" name={user.name} age={user.age} job_title={user.job_title} handleChangeName={
+                (e) => {
+                  const newValue = e.target.value;
+                  updateUserState(user.id, newValue, user.age, user.job_title)
+                }
+              }
+                handleChangeAge={
+                  (e) => {
+                    const newValue = e.target.value;
+                    updateUserState(user.id, user.name, newValue, user.job_title)
+                  }
+                }
+                handleChangeJobTitle={
+                  (e) => {
+                    const newValue = e.target.value;
+                    updateUserState(user.id, user.name, user.age, newValue)
+                  }
+                } submit={(e) => { submitUpdatedUser(e, user.id, user.name, user.age, user.job_title) }}></UserPopup></td>
+              <td><button onClick={() => submitDeleteUser(user.id)}>Delete</button></td>
             </tr>
           ))}
 
@@ -105,10 +134,11 @@ function App() {
           <label>Age</label>
           <input type='number' name='age' value={form.age} onChange={handleChange} />
           <label>Job Title</label>
-          <input type='text' name='jobtitle' value={form.jobtitle} onChange={handleChange} />
+          <input type='text' name='job_title' value={form.job_title} onChange={handleChange} />
           <button onClick={submit}>Submit</button>
         </form>
       </Popup>
+      <UserPopup label="Submit" value={[form.name, form.age, form.job_title]} onChange={handleChange} submit={submit} />
     </>
   )
 }

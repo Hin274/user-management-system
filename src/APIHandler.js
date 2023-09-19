@@ -5,7 +5,7 @@ export async function getUser() {
   return users
 }
 
-export async function addUser(name, age, jobtitle) {
+export async function addUser(name, age, job_title) {
   const add = await fetch("http://localhost:3000/users/posts", {
 
     // Adding method type
@@ -15,7 +15,7 @@ export async function addUser(name, age, jobtitle) {
     body: JSON.stringify({
       name: name,
       age: age,
-      jobtitle: jobtitle
+      job_title: job_title
     }),
 
     // Adding headers to the request
@@ -26,17 +26,37 @@ export async function addUser(name, age, jobtitle) {
   })
 }
 
-export async function updateUser(id,name, age, jobtitle) {
-  const update = await fetch(`http://localhost:3000/users/${id}`, {
+export async function updateUser(id,name, age, job_title) {
+  const update = await fetch(`http://localhost:3000/users/update`, {
 
     // Adding method type
     method: "PUT",
 
     // Adding body or contents to send
     body: JSON.stringify({
+      id:id,
       name: name,
       age: age,
-      jobtitle: jobtitle
+      job_title: job_title
+    }),
+
+    // Adding headers to the request
+    headers: {
+      "Content-type": "application/json"
+    }
+
+  })
+}
+
+export async function deleteUser(id) {
+  const remove = await fetch(`http://localhost:3000/users/delete`, {
+
+    // Adding method type
+    method: "DELETE",
+
+    // Adding body or contents to send
+    body: JSON.stringify({
+      id:id
     }),
 
     // Adding headers to the request
